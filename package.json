@@ -1,0 +1,27 @@
+{
+  "name": "kosher-moor-website",
+  "version": "1.0.0",
+  "description": "The Kosher Moor — Sovereign Herbal Marketplace",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "stripe": "^16.0.0"
+  },
+  "keywords": [
+    "herbal",
+    "marketplace",
+    "ecommerce",
+    "stripe"
+  ],
+  "author": "The Kosher Moor",
+  "license": "UNLICENSED"
+}
