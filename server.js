@@ -5,10 +5,32 @@ require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
 const path    = require('path');
-const stripe  = require('stripe')(process.env.STRIPE_SECRET_KEY || '');
+const rateLimit = require('express-rate-limit');
+const stripe    = require('stripe')(process.env.STRIPE_SECRET_KEY || '');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
+
+// ─── Rate Limiting ───────────────────────────────────────────────────────────
+// General limiter for all routes (protects file-system access in SPA fallback)
+const generalLimiter = rateLimit({
+  windowMs:         15 * 60 * 1000, // 15 minutes
+  max:              500,             // requests per window
+  standardHeaders:  true,
+  legacyHeaders:    false,
+  message:          { error: 'Too many requests, please try again later.' },
+});
+
+// Stricter limiter for payment and AI endpoints
+const apiLimiter = rateLimit({
+  windowMs:         15 * 60 * 1000,
+  max:              60,
+  standardHeaders:  true,
+  legacyHeaders:    false,
+  message:          { error: 'Too many requests, please try again later.' },
+});
+
+app.use(generalLimiter);
 
 // ─── Security & CSP headers ──────────────────────────────────────────────────
 app.use((req, res, next) => {
@@ -59,7 +81,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok', ts: Date.now() }));
 //  STRIPE — Create Checkout Session
 //  Called by: STRIPE_CONFIG.checkoutEndpoint → '/create-checkout-session'
 // ─────────────────────────────────────────────────────────────────────────────
-app.post('/create-checkout-session', async (req, res) => {
+app.post('/create-checkout-session', apiLimiter, async (req, res) => {
   if (!process.env.STRIPE_SECRET_KEY) {
     return res.status(503).json({ error: 'Stripe is not configured on this server.' });
   }
@@ -96,7 +118,7 @@ app.post('/create-checkout-session', async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 //  STRIPE — Create Payment Intent  (PaymentElement / custom UI flow)
 // ─────────────────────────────────────────────────────────────────────────────
-app.post('/api/create-payment-intent', async (req, res) => {
+app.post('/api/create-payment-intent', apiLimiter, async (req, res) => {
   if (!process.env.STRIPE_SECRET_KEY) {
     return res.status(503).json({ error: 'Stripe is not configured on this server.' });
   }
@@ -130,7 +152,7 @@ app.post('/api/create-payment-intent', async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 //  STRIPE — Confirm Payment  (optional server-side confirmation step)
 // ─────────────────────────────────────────────────────────────────────────────
-app.post('/api/confirm-payment', async (req, res) => {
+app.post('/api/confirm-payment', apiLimiter, async (req, res) => {
   if (!process.env.STRIPE_SECRET_KEY) {
     return res.status(503).json({ error: 'Stripe is not configured on this server.' });
   }
@@ -199,7 +221,7 @@ app.post('/api/webhook', (req, res) => {
 //  CHAT — Proxy to Anthropic API
 //  Keeps the API key server-side; the browser never sees it.
 // ─────────────────────────────────────────────────────────────────────────────
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', apiLimiter, async (req, res) => {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return res.status(503).json({ error: 'AI chat is not configured on this server.' });
@@ -250,7 +272,7 @@ app.post('/api/chat', async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 //  CONTACT FORM  —  /api/contact
 // ─────────────────────────────────────────────────────────────────────────────
-app.post('/api/contact', (req, res) => {
+app.post('/api/contact', apiLimiter, (req, res) => {
   const { name, email, message } = req.body;
 
   if (!name || !email || !message) {
