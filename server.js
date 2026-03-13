@@ -227,7 +227,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
     return res.status(503).json({ error: 'AI chat is not configured on this server.' });
   }
 
-  const { messages, system } = req.body;
+  const { messages, system, max_tokens } = req.body;
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: 'messages array is required.' });
   }
@@ -239,6 +239,9 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
 
   if (safe.length === 0) return res.status(400).json({ error: 'No valid messages provided.' });
 
+  // Allow callers to request more tokens (e.g. consulting = 4000), capped at 4096
+  const tokens = Math.min(Math.max(Number(max_tokens) || 1024, 256), 4096);
+
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method:  'POST',
@@ -249,7 +252,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       },
       body: JSON.stringify({
         model:      'claude-sonnet-4-20250514',
-        max_tokens: 1024,
+        max_tokens: tokens,
         system:     typeof system === 'string' ? system.slice(0, 4000) : undefined,
         messages:   safe,
       }),
