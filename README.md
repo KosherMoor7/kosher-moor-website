@@ -1,9 +1,11 @@
 # The Kosher Moor — Sovereign Herbal Marketplace
 
+[![Live Site](https://img.shields.io/badge/🌐%20Live%20Site-thekoshermoor.com-green?style=for-the-badge)](https://thekoshermoor.com)
+
 A full-stack sovereign e-commerce marketplace offering premium herbal products, services, merch, and consulting — powered by Express.js and Stripe.
 
 ## 🌐 Live Site
-[thekoshermoor.com](https://thekoshermoor.com)
+[https://thekoshermoor.com](https://thekoshermoor.com)
 
 ---
 
