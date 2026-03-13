@@ -24,12 +24,12 @@
   <meta property="og:url" content="https://thekoshermoor.com/">
   <meta property="og:title" content="The Kosher Moor — Sovereign Herbal Marketplace">
   <meta property="og:description" content="Heritage-driven herbal products, curated merch, lawn care, mobile tire service, and sovereign business consulting. Experience the Moor.">
-  <meta property="og:image" content="https://thekoshermoor.com/og-image.jpg"><!-- PUBLISH TASK: Upload a 1200x630px brand image to your server and update this URL -->
+  <meta property="og:image" content="https://thekoshermoor.com/og-image.svg">
   <meta property="og:site_name" content="The Kosher Moor">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="The Kosher Moor — Sovereign Marketplace">
   <meta name="twitter:description" content="Herbal teas, tinctures, supplements, merch, lawn care, mobile tire service and business consulting.">
-  <meta name="twitter:image" content="https://thekoshermoor.com/og-image.jpg"><!-- PUBLISH TASK: Upload a 1200x630px brand image to your server and update this URL -->
+  <meta name="twitter:image" content="https://thekoshermoor.com/og-image.svg">
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"Store","name":"The Kosher Moor","url":"https://thekoshermoor.com","email":"info@thekoshermoor.com","sameAs":["https://instagram.com/thekoshermoor","https://facebook.com/thekoshermoor"],"description":"Sovereign herbal marketplace offering premium teas, tinctures, supplements, merch, lawn care, mobile tire service, and business consulting.","priceRange":"$$","currenciesAccepted":"USD","paymentAccepted":"Credit Card, PayPal, Cash App, Venmo, Zelle","openingHours":["Mo-Fr 09:00-19:00","Sa 10:00-18:00"],"hasOfferCatalog":{"@type":"OfferCatalog","name":"Sovereign Products and Services","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Product","name":"Herbal Teas and Blends"}},{"@type":"Offer","itemOffered":{"@type":"Product","name":"Tinctures and Elixirs"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Lawn Care"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Mobile Tire Service"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Business Consulting"}}]}}
   </script>
@@ -2746,6 +2746,10 @@ async function callSovereignAgent(userMessage) {
       })
     });
 
+    if (response.status === 404) {
+      throw new Error('static');
+    }
+
     if (!response.ok) {
       throw new Error('Agent unavailable (HTTP ' + response.status + ')');
     }
@@ -2769,7 +2773,11 @@ async function callSovereignAgent(userMessage) {
   } catch (err) {
     removeTyping();
     console.error('Sovereign Agent error:', err);
-    addErrorMsg('I apologize — I am experiencing a brief interruption. Please try again or use the Contact Us button to reach our team directly. We will respond within 24 hours. 🌿');
+    if (err.message === 'static') {
+      addErrorMsg('Live AI chat requires our server. Please reach us directly at <a href="mailto:info@thekoshermoor.com" style="color:var(--gold)">info@thekoshermoor.com</a> or call <a href="tel:+14699289975" style="color:var(--gold)">469-928-9975</a>. 🌿');
+    } else {
+      addErrorMsg('I apologize — I am experiencing a brief interruption. Please try again or use the Contact Us button to reach our team directly. We will respond within 24 hours. 🌿');
+    }
   } finally {
     setBusy(false);
   }
@@ -3586,6 +3594,10 @@ async function kmcRunAnalysis() {
         messages: kmcSessionMemory,
       })
     });
+
+    if (response.status === 404) {
+      throw new Error('Consulting analysis requires our server. Please book directly at <a href="mailto:info@thekoshermoor.com">info@thekoshermoor.com</a> or call 469-928-9975.');
+    }
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
