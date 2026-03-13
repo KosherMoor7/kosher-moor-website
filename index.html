@@ -2736,11 +2736,10 @@ async function callSovereignAgent(userMessage) {
   }
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
         max_tokens: 600,
         system: KM_SYSTEM_PROMPT,
         messages: conversationHistory
@@ -3578,11 +3577,10 @@ async function kmcRunAnalysis() {
   kmcSessionMemory.push({ role: 'user', content: 'Analyze my intake and provide expert consulting: ' + JSON.stringify(data) });
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
         system: systemPrompt,
         messages: kmcSessionMemory,
@@ -3591,7 +3589,7 @@ async function kmcRunAnalysis() {
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error?.message || 'Analysis service unavailable (HTTP ' + response.status + ')');
+      throw new Error(errData.error || 'Analysis service unavailable (HTTP ' + response.status + ')');
     }
 
     const result = await response.json();
