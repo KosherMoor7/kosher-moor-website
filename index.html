@@ -10,7 +10,7 @@
 </script>
 
 <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com https://api.anthropic.com; img-src 'self' data: blob: https:; connect-src 'self' https:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https:;">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2730,9 +2730,13 @@ async function callSovereignAgent(userMessage) {
   // Add to history
   conversationHistory.push({ role: 'user', content: userMessage });
 
-  // Keep history at max 20 messages to control token usage
+  // Keep history at max 20 messages to control token usage.
+  // Always ensure the first message is role:'user' — Anthropic requires it.
   if (conversationHistory.length > 20) {
     conversationHistory = conversationHistory.slice(-20);
+    while (conversationHistory.length && conversationHistory[0].role !== 'user') {
+      conversationHistory = conversationHistory.slice(1);
+    }
   }
 
   try {
@@ -3701,6 +3705,7 @@ function closeConsultModal() {
     kmcCurrentAgent   = null;
     kmcCurrentPage    = 1;
     kmcAnalysisResult = null;
+    kmcSessionMemory  = [];
     kmcSetPage(1);
     // Clear agent card selection
     document.querySelectorAll('.agent-select-card').forEach(c => {
