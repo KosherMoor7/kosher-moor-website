@@ -74,7 +74,8 @@ app.get('/api/health', (req, res) => {
 })
 
 // ─── Serve Frontend Static Files ─────────────────────────────────────────────
-const frontendPath = path.join(__dirname, '..', 'frontend')
+const frontendPath = path.join(__dirname, '.')
+
 app.use(express.static(frontendPath))
 
 // Explicit routes so /admin/ and /order-success don't fall through to index.html
