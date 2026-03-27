@@ -17,12 +17,3 @@
     "node": ">=18.0.0"
   }
 }
-```
-
-Commit changes → Commit changes.
-
----
-
-Then go to Railway and watch it deploy. After 3 minutes visit:
-```
-https://www.thekoshermoor.com
