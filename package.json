@@ -1,7 +1,6 @@
 {
   "name": "kosher-moor-website",
   "version": "1.0.0",
-  "description": "The Kosher Moor Sovereign Herbal Marketplace",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -17,3 +16,14 @@
     "node": ">=18.0.0"
   }
 }
+```
+
+Commit changes → Commit changes
+
+---
+
+### FILE 3 — Check Procfile
+
+Click `Procfile` and make sure it contains exactly one line:
+```
+web: node server.js
